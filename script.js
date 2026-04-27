@@ -43,13 +43,6 @@ document.addEventListener('DOMContentLoaded', () => {
         isHolding = true;
         giantHeart.classList.add('holding');
         
-        // Start audio silently immediately on interaction to bypass restrictions
-        const bgMusic = document.getElementById('bg-music');
-        if (bgMusic && bgMusic.paused) {
-            bgMusic.volume = 0;
-            bgMusic.play().catch(e => console.log("Audio play failed:", e));
-        }
-        
         holdTimer = setInterval(() => {
             progress += 2; // Takes about 2.5 seconds (50 iterations of 50ms)
             progressBar.style.width = `${progress}%`;
@@ -104,7 +97,11 @@ document.addEventListener('DOMContentLoaded', () => {
             // Turn up volume for already playing music
             const bgMusic = document.getElementById('bg-music');
             if (bgMusic) {
-                bgMusic.volume = 0.3; // Less volume as requested
+                bgMusic.volume = 0.15; // Very low volume as requested
+                // Backup play trigger if it somehow didn't start silently
+                if (bgMusic.paused) {
+                    bgMusic.play().catch(e => console.log("Audio still blocked:", e));
+                }
             }
             
             // Trigger scroll animation check immediately
@@ -120,6 +117,25 @@ document.addEventListener('DOMContentLoaded', () => {
         giantHeart.addEventListener('touchstart', (e) => { e.preventDefault(); startHold(); }, {passive: false});
         giantHeart.addEventListener('touchend', endHold);
     }
+
+    // GUARANTEED AUDIO UNLOCKER
+    let audioUnlocked = false;
+    function unlockAudio() {
+        if (audioUnlocked) return;
+        const bgMusic = document.getElementById('bg-music');
+        if (bgMusic) {
+            bgMusic.volume = 0; // Keep it silent until they unlock the heart
+            bgMusic.play().then(() => {
+                audioUnlocked = true;
+            }).catch(e => {});
+        }
+        document.removeEventListener('touchstart', unlockAudio);
+        document.removeEventListener('mousedown', unlockAudio);
+        document.removeEventListener('click', unlockAudio);
+    }
+    document.addEventListener('touchstart', unlockAudio, { once: true });
+    document.addEventListener('mousedown', unlockAudio, { once: true });
+    document.addEventListener('click', unlockAudio, { once: true });
 
     // Scroll Animation for cards and boxes
     const fadeElements = document.querySelectorAll('.card, .glass-box, .surprise-box');
