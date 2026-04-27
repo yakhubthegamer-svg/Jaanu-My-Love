@@ -43,6 +43,16 @@ document.addEventListener('DOMContentLoaded', () => {
         isHolding = true;
         giantHeart.classList.add('holding');
         
+        // Trick to unlock audio context on browsers (needs user gesture)
+        const bgMusic = document.getElementById('bg-music');
+        if (bgMusic && bgMusic.paused && bgMusic.currentTime === 0) {
+            bgMusic.volume = 0;
+            bgMusic.play().then(() => {
+                bgMusic.pause();
+                bgMusic.currentTime = 0;
+            }).catch(e => {});
+        }
+        
         holdTimer = setInterval(() => {
             progress += 2; // Takes about 2.5 seconds (50 iterations of 50ms)
             progressBar.style.width = `${progress}%`;
@@ -86,6 +96,13 @@ document.addEventListener('DOMContentLoaded', () => {
             heartLockContainer.style.visibility = 'hidden';
             mainContent.style.visibility = 'visible';
             mainContent.style.opacity = '1';
+            
+            // Play Background Music
+            const bgMusic = document.getElementById('bg-music');
+            if (bgMusic) {
+                bgMusic.volume = 0.3; // Less volume as requested
+                bgMusic.play().catch(e => console.log("Audio play failed:", e));
+            }
             
             // Trigger scroll animation check immediately
             checkCards();
