@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const envelope = document.getElementById('envelope');
-    const envelopeContainer = document.getElementById('envelope-container');
+    const giantHeart = document.getElementById('giant-heart');
+    const heartLockContainer = document.getElementById('heart-lock-container');
+    const progressBar = document.getElementById('progress-bar');
     const mainContent = document.getElementById('main-content');
     
     // Create floating hearts
@@ -32,27 +33,73 @@ document.addEventListener('DOMContentLoaded', () => {
     // Create hearts continuously
     setInterval(createHeart, 300);
     
-    // Envelope Interaction
-    envelope.addEventListener('click', () => {
-        envelope.classList.add('open');
+    // Heart Lock Interaction
+    let holdTimer;
+    let progress = 0;
+    let isHolding = false;
+
+    function startHold() {
+        if (!giantHeart) return;
+        isHolding = true;
+        giantHeart.classList.add('holding');
         
-        // Create an explosion of hearts
-        for(let i=0; i<30; i++) {
-            setTimeout(createHeart, i * 50);
+        holdTimer = setInterval(() => {
+            progress += 2; // Takes about 2.5 seconds (50 iterations of 50ms)
+            progressBar.style.width = `${progress}%`;
+            
+            if (progress >= 100) {
+                clearInterval(holdTimer);
+                unlockHeart();
+            }
+        }, 50);
+    }
+
+    function endHold() {
+        if (!giantHeart || progress >= 100) return;
+        isHolding = false;
+        giantHeart.classList.remove('holding');
+        clearInterval(holdTimer);
+        
+        // Drain progress backwards if let go early
+        const drainTimer = setInterval(() => {
+            if (isHolding) {
+                clearInterval(drainTimer);
+                return;
+            }
+            progress -= 5;
+            if (progress <= 0) {
+                progress = 0;
+                clearInterval(drainTimer);
+            }
+            progressBar.style.width = `${progress}%`;
+        }, 30);
+    }
+
+    function unlockHeart() {
+        // Create a massive explosion of hearts
+        for(let i=0; i<60; i++) {
+            setTimeout(createHeart, i * 30);
         }
         
+        heartLockContainer.style.opacity = '0';
         setTimeout(() => {
-            envelopeContainer.style.opacity = '0';
-            setTimeout(() => {
-                envelopeContainer.style.visibility = 'hidden';
-                mainContent.style.visibility = 'visible';
-                mainContent.style.opacity = '1';
-                
-                // Trigger scroll animation check immediately
-                checkCards();
-            }, 1500);
+            heartLockContainer.style.visibility = 'hidden';
+            mainContent.style.visibility = 'visible';
+            mainContent.style.opacity = '1';
+            
+            // Trigger scroll animation check immediately
+            checkCards();
         }, 1500);
-    });
+    }
+
+    if (giantHeart) {
+        giantHeart.addEventListener('mousedown', startHold);
+        giantHeart.addEventListener('mouseup', endHold);
+        giantHeart.addEventListener('mouseleave', endHold);
+        
+        giantHeart.addEventListener('touchstart', (e) => { e.preventDefault(); startHold(); }, {passive: false});
+        giantHeart.addEventListener('touchend', endHold);
+    }
 
     // Scroll Animation for cards
     const cards = document.querySelectorAll('.card');
