@@ -43,14 +43,11 @@ document.addEventListener('DOMContentLoaded', () => {
         isHolding = true;
         giantHeart.classList.add('holding');
         
-        // Trick to unlock audio context on browsers (needs user gesture)
+        // Start audio silently immediately on interaction to bypass restrictions
         const bgMusic = document.getElementById('bg-music');
-        if (bgMusic && bgMusic.paused && bgMusic.currentTime === 0) {
+        if (bgMusic && bgMusic.paused) {
             bgMusic.volume = 0;
-            bgMusic.play().then(() => {
-                bgMusic.pause();
-                bgMusic.currentTime = 0;
-            }).catch(e => {});
+            bgMusic.play().catch(e => console.log("Audio play failed:", e));
         }
         
         holdTimer = setInterval(() => {
@@ -70,6 +67,13 @@ document.addEventListener('DOMContentLoaded', () => {
         giantHeart.classList.remove('holding');
         clearInterval(holdTimer);
         
+        // Pause audio if let go early
+        const bgMusic = document.getElementById('bg-music');
+        if (bgMusic) {
+            bgMusic.pause();
+            bgMusic.currentTime = 0;
+        }
+
         // Drain progress backwards if let go early
         const drainTimer = setInterval(() => {
             if (isHolding) {
@@ -97,11 +101,10 @@ document.addEventListener('DOMContentLoaded', () => {
             mainContent.style.visibility = 'visible';
             mainContent.style.opacity = '1';
             
-            // Play Background Music
+            // Turn up volume for already playing music
             const bgMusic = document.getElementById('bg-music');
             if (bgMusic) {
                 bgMusic.volume = 0.3; // Less volume as requested
-                bgMusic.play().catch(e => console.log("Audio play failed:", e));
             }
             
             // Trigger scroll animation check immediately
