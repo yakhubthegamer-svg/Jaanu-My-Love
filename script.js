@@ -101,22 +101,59 @@ document.addEventListener('DOMContentLoaded', () => {
         giantHeart.addEventListener('touchend', endHold);
     }
 
-    // Scroll Animation for cards
-    const cards = document.querySelectorAll('.card');
+    // Scroll Animation for cards and boxes
+    const fadeElements = document.querySelectorAll('.card, .glass-box, .surprise-box');
     
-    function checkCards() {
-        const triggerBottom = window.innerHeight * 0.85;
-        
-        cards.forEach(card => {
-            const cardTop = card.getBoundingClientRect().top;
-            
-            if(cardTop < triggerBottom) {
-                card.classList.add('visible');
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: "0px 0px -50px 0px"
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if(entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                observer.unobserve(entry.target);
             }
         });
-    }
-    
-    window.addEventListener('scroll', checkCards);
+    }, observerOptions);
+
+    fadeElements.forEach(el => {
+        el.classList.add('fade-in-element');
+        observer.observe(el);
+    });
+
+    // Cursor Sparkles
+    document.addEventListener('mousemove', function(e) {
+        if(Math.random() > 0.8) {
+            const sparkle = document.createElement('div');
+            sparkle.classList.add('sparkle');
+            sparkle.style.left = e.clientX + 'px';
+            sparkle.style.top = e.clientY + 'px';
+            document.body.appendChild(sparkle);
+            setTimeout(() => { sparkle.remove(); }, 800);
+        }
+    });
+
+    // 3D Card Tilt Effect
+    const cardElements = document.querySelectorAll('.card');
+    cardElements.forEach(card => {
+        card.addEventListener('mousemove', e => {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            const rotateX = ((y - centerY) / centerY) * -10;
+            const rotateY = ((x - centerX) / centerX) * 10;
+            
+            card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.05)`;
+        });
+        
+        card.addEventListener('mouseleave', () => {
+            card.style.transform = `perspective(1000px) rotateX(0) rotateY(0) scale(1)`;
+        });
+    });
     
     // Scratch Card Logic
     const canvas = document.getElementById('scratch-canvas');

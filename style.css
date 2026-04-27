@@ -5,11 +5,37 @@
 }
 
 body {
-    background: radial-gradient(circle at center, #1a0005 0%, #0d0002 100%);
+    background: linear-gradient(-45deg, #1a0005, #33001a, #4d0026, #1a0005);
+    background-size: 400% 400%;
+    animation: gradientBG 15s ease infinite;
     color: #fff;
     font-family: 'Poppins', sans-serif;
     overflow-x: hidden;
     min-height: 100vh;
+    cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="%23ff3366" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>') 12 12, auto;
+}
+
+@keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.sparkle {
+    position: fixed;
+    width: 6px;
+    height: 6px;
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 0 10px #ff3366, 0 0 20px #ffb3c6;
+    pointer-events: none;
+    z-index: 9999;
+    animation: sparkleAnim 0.8s forwards;
+}
+
+@keyframes sparkleAnim {
+    0% { transform: scale(1) translateY(0); opacity: 1; }
+    100% { transform: scale(0) translateY(-20px); opacity: 0; }
 }
 
 #hearts-container {
@@ -196,28 +222,33 @@ body {
 }
 
 .card {
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.03);
     border-radius: 20px;
     overflow: hidden;
     width: 350px;
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 15px 35px rgba(0,0,0,0.2);
-    transition: transform 0.4s, box-shadow 0.4s;
-    opacity: 0;
-    transform: translateY(50px);
-}
-
-.card.visible {
-    opacity: 1;
-    transform: translateY(0);
-    transition: transform 0.6s ease-out, opacity 0.6s ease-out, box-shadow 0.4s;
+    border-top: 1px solid rgba(255, 255, 255, 0.3);
+    border-left: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+    transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
 }
 
 .card:hover {
-    transform: translateY(-15px) scale(1.02);
-    box-shadow: 0 20px 40px rgba(255, 51, 102, 0.3);
-    border: 1px solid rgba(255, 51, 102, 0.5);
+    box-shadow: 0 20px 50px rgba(255, 51, 102, 0.5);
+    border: 1px solid rgba(255, 51, 102, 0.8);
+}
+
+.fade-in-element {
+    opacity: 0;
+    transform: translateY(50px);
+    transition: opacity 1s ease-out, transform 1s ease-out;
+}
+
+.fade-in-element.visible {
+    opacity: 1;
+    transform: translateY(0);
 }
 
 .card img {
@@ -250,13 +281,35 @@ body {
 }
 
 .glass-box {
-    background: rgba(255, 51, 102, 0.05);
-    backdrop-filter: blur(15px);
-    border: 1px solid rgba(255, 51, 102, 0.2);
+    background: linear-gradient(135deg, rgba(255, 51, 102, 0.1) 0%, rgba(255, 51, 102, 0.02) 100%);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-top: 1px solid rgba(255, 255, 255, 0.4);
+    border-left: 1px solid rgba(255, 255, 255, 0.4);
     border-radius: 30px;
     padding: 4rem;
     text-align: center;
-    box-shadow: 0 0 50px rgba(255, 51, 102, 0.1);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    position: relative;
+    overflow: hidden;
+}
+
+.glass-box::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+    opacity: 0;
+    transition: opacity 0.5s;
+    pointer-events: none;
+}
+
+.glass-box:hover::before {
+    opacity: 1;
 }
 
 .glass-box h2 {
@@ -425,14 +478,17 @@ body {
 }
 
 .surprise-box {
-    background: rgba(255, 255, 255, 0.05);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%);
     border-radius: 20px;
     padding: 2rem;
     margin: 0 auto 3rem auto;
     max-width: 600px;
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 51, 102, 0.2);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-top: 1px solid rgba(255, 255, 255, 0.3);
+    border-left: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
 }
 
 .surprise-box h3 {
